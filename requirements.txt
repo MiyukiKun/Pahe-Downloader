@@ -2,3 +2,4 @@ telethon
 requests
 python-dotenv
 FastTelethonhelper
+beautifulsoup4

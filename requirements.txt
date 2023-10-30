@@ -1,0 +1,4 @@
+telethon
+requests
+python-dotenv
+FastTelethonhelper

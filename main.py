@@ -98,7 +98,7 @@ async def _(event):
             anime = pahe.search_apahe(anime_name)["data"][0]
         num_of_eps = int(pahe.get_total_episodes(anime['session']))
         if anim['eps_done'] < num_of_eps:
-            eps_ids = pahe.mid_apahe(anime['session'], [anim['eps_done'], num_of_eps])
+            eps_ids = pahe.mid_apahe(anime['session'], [anim['eps_done']+1, num_of_eps])
             eps_list = pahe.dl_apahe1(anime["session"], eps_ids)
             thumb = anime["poster"]
             thumb = await helper.DownLoadFile(thumb, file_name=f"{anime_name} thumb.png")
@@ -118,8 +118,8 @@ async def _(event):
                     await bot.send_message(event.chat_id, f"{file_name.replace('.mkv', '').replace('.mp4', '')}", file=res_file, force_document=True, thumb=thumb)
                     await reply.delete()
                     os.remove(file)
+                AutoAnimeDB.modify({"_id": anim['_id']}, {"eps_done": ep_num})
             os.remove(thumb)
-        AutoAnimeDB.modify({"_id": anim['_id']}, {"eps_done": num_of_eps})
     await event.reply("Updated successfully")
 
 @bot.on(events.NewMessage(pattern="/add_anime"))

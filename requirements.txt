@@ -3,3 +3,6 @@ requests
 python-dotenv
 FastTelethonhelper
 beautifulsoup4
+pymongo
+dnspython
+lxml

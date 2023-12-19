@@ -39,6 +39,12 @@ def mid_apahe(session_id, episode_range):
             data.append(s)
     return data[(episode_range[0]%30)-1:30*(pages[1]-pages[0]-1)+episode_range[1]%30]
 
+def get_total_episodes(session_id):
+    url2 = url + "api?m=release&id=" + session_id + "&sort=episode_asc&page=1"
+    r = session.get(url2)
+    r = r.json()
+    return r['total']
+
 
 def dl_apahe1(anime_id: str, episode_ids: list) -> dict:
     

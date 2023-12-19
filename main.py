@@ -3,6 +3,9 @@ from telethon import events
 import pahe, kwik_token, helper
 from FastTelethonhelper import fast_upload
 import os
+from mongodb import AutoAnimeDB
+
+AutoAnimeDB = AutoAnimeDB()
 
 @bot.on(events.NewMessage(pattern="/start"))
 async def _(event):
@@ -45,7 +48,7 @@ async def _(event):
         name_format = await conv.get_response()
         name_format = name_format.raw_text.strip()
         thumb = choice["poster"]
-        thumb = await helper.DownLoadFile(thumb, file_name="thumb.png")
+        thumb = await helper.DownLoadFile(thumb, file_name=f"{anime_name} thumb.png")
 
     if resolution_choice == -1:
         for k, v in eps_list.items():
@@ -61,7 +64,7 @@ async def _(event):
                 file = await helper.DownLoadFile(dl_link, file_name=file_name)
                 res_file = await fast_upload(client = bot, file_location = file, reply = reply)
                 await bot.send_message(event.chat_id, f"{file_name.replace('.mkv', '').replace('.mp4', '')}", file=res_file, force_document=True, thumb=thumb)
-                reply.delete()
+                await reply.delete()
                 os.remove(file)
     
     else:
@@ -79,6 +82,65 @@ async def _(event):
             await bot.send_message(event.chat_id, f"{file_name.replace('.mkv', '').replace('.mp4', '')}", file=res_file, force_document=True, thumb=thumb)
             os.remove(file)
             reply.delete()
+
+
+@bot.on(events.NewMessage(pattern="/update"))
+async def _(event):
+    animedb = AutoAnimeDB.full()
+    main_reply = await event.reply("Processing....")
+    for n, anim in enumerate(animedb):
+        await main_reply.edit(f"checking for updates of {anim['_id']} ({n+1}/{len(animedb)})")
+        anime_name = anim['_id']
+        anime = pahe.search_apahe(anime_name)["data"][0]
+        num_of_eps = int(pahe.get_total_episodes(anime['session']))
+        if anim['eps_done'] < num_of_eps:
+            eps_ids = pahe.mid_apahe(anime['session'], [anim['eps_done'], num_of_eps])
+            eps_list = pahe.dl_apahe1(anime["session"], eps_ids)
+            thumb = anime["poster"]
+            thumb = await helper.DownLoadFile(thumb, file_name=f"{anime_name} thumb.png")
+            name_format = f"{anime_name}  "
+            for k, v in eps_list.items():
+                for i in v:
+                    dl_link = pahe.dl_apahe2(i[0])
+                    dl_link = kwik_token.get_dl_link(dl_link)
+                    ep_num = k + range[0] - 1
+                    res = i[1].split()[0]
+                    lang = i[2]
+                    file_name = name_format.replace("UwU", str(ep_num)).replace("RES", res).replace("LANG", lang)
+                    reply = await event.reply(f"Starting download {file_name}")
+                    
+                    file = await helper.DownLoadFile(dl_link, file_name=file_name)
+                    res_file = await fast_upload(client = bot, file_location = file, reply = reply)
+                    await bot.send_message(event.chat_id, f"{file_name.replace('.mkv', '').replace('.mp4', '')}", file=res_file, force_document=True, thumb=thumb)
+                    await reply.delete()
+                    os.remove(file)
+            os.remove(thumb)
+        AutoAnimeDB.modify({"_id": anime_name}, {"eps_done": num_of_eps})
+
+@bot.on(events.NewMessage(pattern="/add_anime"))
+async def _(event):
+    if event.raw_text == "/add_anime":
+        await event.reply("/add_anime\nanime name\nfile name format\n\n\n\nfile format example\nAnime Name - S1 UwU RES LANG.mkv\n UwU will be replaced by ep number.\nRES will be replaced by resolution\nLANG will be replaced by either sub/dub")
+        return
+    anime_name = event.raw_text.split("\n")[1]
+    file_name_format = event.raw_text.split("\n")[2]
+    AutoAnimeDB.add({"_id": anime_name, "eps_done": 0, "file_name_format":file_name_format})
+    await event.reply("Anime added to watchlist")
+
+@bot.on(events.NewMessage(pattern="/rm_anime"))
+async def _(event):
+    anime_name = event.raw_text.split("\n")[1]
+    AutoAnimeDB.remove({"_id": anime_name})
+    await event.reply("Anime removed from watchlist")
+
+@bot.on(events.NewMessage(pattern="/show_watchlist"))
+async def _(event):
+    db = AutoAnimeDB.full()
+    txt = ''
+    for i in db:
+        txt += f"{i['_id']}\nEps downloaded: {i['eps_done']}\n{i['file_name_format']}\n\n\n"
+    await event.reply(txt)
+    
 
 
 bot.start()

@@ -102,7 +102,7 @@ async def _(event):
             eps_list = pahe.dl_apahe1(anime["session"], eps_ids)
             thumb = anime["poster"]
             thumb = await helper.DownLoadFile(thumb, file_name=f"{anime_name} thumb.png")
-            name_format = f"{anime_name}  "
+            name_format = anim['file_name_format']
             for k, v in eps_list.items():
                 for i in v:
                     dl_link = pahe.dl_apahe2(i[0])
@@ -120,6 +120,7 @@ async def _(event):
                     os.remove(file)
             os.remove(thumb)
         AutoAnimeDB.modify({"_id": anim['_id']}, {"eps_done": num_of_eps})
+    await event.reply("Updated successfully")
 
 @bot.on(events.NewMessage(pattern="/add_anime"))
 async def _(event):

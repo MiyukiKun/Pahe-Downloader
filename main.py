@@ -118,7 +118,7 @@ async def _(event):
                     await bot.send_message(event.chat_id, f"{file_name.replace('.mkv', '').replace('.mp4', '')}", file=res_file, force_document=True, thumb=thumb)
                     await reply.delete()
                     os.remove(file)
-                AutoAnimeDB.modify({"_id": anim['_id']}, {"eps_done": ep_num})
+                AutoAnimeDB.modify({"_id": anim['_id']}, {"eps_done": ep_num+1})
             os.remove(thumb)
     await event.reply("Updated successfully")
 

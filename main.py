@@ -91,7 +91,11 @@ async def _(event):
     for n, anim in enumerate(animedb):
         await main_reply.edit(f"checking for updates of {anim['_id']} ({n+1}/{len(animedb)})")
         anime_name = anim['_id']
-        anime = pahe.search_apahe(anime_name)["data"][0]
+        if "---" in anime_name:
+            anime = pahe.search_apahe(anime_name.split('---')[0])["data"][int(anime_name.split('---')[-1])]
+            anime_name = anime_name.split('---')[0]
+        else:
+            anime = pahe.search_apahe(anime_name)["data"][0]
         num_of_eps = int(pahe.get_total_episodes(anime['session']))
         if anim['eps_done'] < num_of_eps:
             eps_ids = pahe.mid_apahe(anime['session'], [anim['eps_done'], num_of_eps])
@@ -103,7 +107,7 @@ async def _(event):
                 for i in v:
                     dl_link = pahe.dl_apahe2(i[0])
                     dl_link = kwik_token.get_dl_link(dl_link)
-                    ep_num = k + range[0] - 1
+                    ep_num = k + anim['eps_done'] - 1
                     res = i[1].split()[0]
                     lang = i[2]
                     file_name = name_format.replace("UwU", str(ep_num)).replace("RES", res).replace("LANG", lang)
@@ -115,7 +119,7 @@ async def _(event):
                     await reply.delete()
                     os.remove(file)
             os.remove(thumb)
-        AutoAnimeDB.modify({"_id": anime_name}, {"eps_done": num_of_eps})
+        AutoAnimeDB.modify({"_id": anim['_id']}, {"eps_done": num_of_eps})
 
 @bot.on(events.NewMessage(pattern="/add_anime"))
 async def _(event):

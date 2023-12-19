@@ -110,7 +110,7 @@ async def _(event):
                     ep_num = k + anim['eps_done'] - 1
                     res = i[1].split()[0]
                     lang = i[2]
-                    file_name = name_format.replace("UwU", str(ep_num)).replace("RES", res).replace("LANG", lang)
+                    file_name = name_format.replace("UwU", str(ep_num+1)).replace("RES", res).replace("LANG", lang)
                     reply = await event.reply(f"Starting download {file_name}")
                     
                     file = await helper.DownLoadFile(dl_link, file_name=file_name)

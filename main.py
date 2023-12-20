@@ -104,9 +104,9 @@ async def _(event):
             thumb = anime["poster"]
             thumb = await helper.DownLoadFile(thumb, file_name=f"{anime_name} thumb.png")
             name_format = anim['file_name_format']
-            file_name = name_format.replace("UwU", str(ep_num+1)).replace("RES", "").replace("LANG", "")
-            await bot.send_message(event.chat_id, f"{file_name.replace('.mkv', '').replace('.mp4', '')}")
             for k, v in eps_list.items():
+                ep_num = k + anim['eps_done'] - 1
+                await bot.send_message(event.chat_id, name_format.replace("UwU", str(ep_num+1)).replace("RES", "").replace("LANG", "").replace('.mkv', ''))
                 counter = 0
                 for i in reversed(v):
                     if counter == "3":
@@ -118,7 +118,6 @@ async def _(event):
                     counter += 1
                     dl_link = pahe.dl_apahe2(i[0])
                     dl_link = kwik_token.get_dl_link(dl_link)
-                    ep_num = k + anim['eps_done'] - 1
                     file_name = name_format.replace("UwU", str(ep_num+1)).replace("RES", res).replace("LANG", lang)
                     # reply = await event.reply(f"Starting download {file_name}")
                     

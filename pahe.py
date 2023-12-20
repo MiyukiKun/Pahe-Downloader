@@ -39,12 +39,29 @@ def mid_apahe(session_id, episode_range):
             data.append(s)
     return data[(episode_range[0]%30)-1:30*(pages[1]-pages[0]-1)+episode_range[1]%30]
 
-def get_total_episodes(session_id):
+def get_total_episodes(session_id, lang="sub"):
     url2 = url + "api?m=release&id=" + session_id + "&sort=episode_asc&page=1"
     r = session.get(url2)
     r = r.json()
-    return r['total']
-
+    if lang.lower() == 'sub':
+        return r['total']
+    else:
+        x = r['total']
+        total_pages = r["last_page"]
+        exit = False
+        for page_num in range(total_pages, 0, -1):
+            if exit == True:
+                break
+            url2 = url + "api?m=release&id=" + session_id + "&sort=episode_asc&page=" + str(page_num)
+            r = session.get(url2)
+            r = r.json()
+            for i in reversed(r["data"]):
+                if i["audio"].lower() == "eng":
+                    exit = True
+                    break       
+                x = x - 1
+        return x
+                
 
 def dl_apahe1(anime_id: str, episode_ids: list) -> dict:
     

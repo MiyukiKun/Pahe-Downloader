@@ -104,9 +104,11 @@ async def _(event):
             thumb = anime["poster"]
             thumb = await helper.DownLoadFile(thumb, file_name=f"{anime_name} thumb.png")
             name_format = anim['file_name_format']
+            file_name = name_format.replace("UwU", str(ep_num+1)).replace("RES", "").replace("LANG", "")
+            await bot.send_message(event.chat_id, f"{file_name.replace('.mkv', '').replace('.mp4', '')}")
             for k, v in eps_list.items():
                 counter = 0
-                for i in v:
+                for i in reversed(v):
                     if counter == "3":
                         break
                     res = i[1]
@@ -118,12 +120,12 @@ async def _(event):
                     dl_link = kwik_token.get_dl_link(dl_link)
                     ep_num = k + anim['eps_done'] - 1
                     file_name = name_format.replace("UwU", str(ep_num+1)).replace("RES", res).replace("LANG", lang)
-                    reply = await event.reply(f"Starting download {file_name}")
+                    # reply = await event.reply(f"Starting download {file_name}")
                     
                     file = await helper.DownLoadFile(dl_link, file_name=file_name)
-                    res_file = await fast_upload(client = bot, file_location = file, reply = reply)
+                    res_file = await fast_upload(client = bot, file_location = file)       # , reply = reply)
                     await bot.send_message(event.chat_id, f"{file_name.replace('.mkv', '').replace('.mp4', '')}", file=res_file, force_document=True, thumb=thumb)
-                    await reply.delete()
+                    # await reply.delete()
                     os.remove(file)
                 AutoAnimeDB.modify({"_id": anim['_id']}, {"eps_done": ep_num+1})
             os.remove(thumb)

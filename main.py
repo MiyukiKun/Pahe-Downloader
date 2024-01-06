@@ -52,6 +52,7 @@ async def _(event):
         name_format = name_format.raw_text.strip()
         thumb = choice["poster"]
         thumb = await helper.DownLoadFile(thumb, file_name=f"{anime_name} thumb.png")
+        await event.reply("Starting Download...")
 
     if resolution_choice == -1:
         for k, v in eps_list.items():

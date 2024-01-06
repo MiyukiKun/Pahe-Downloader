@@ -42,8 +42,11 @@ async def _(event):
 
         await conv.send_message(resolutions)
         resolution_choice = await conv.get_response()
-        resolution_choice = int(resolution_choice.raw_text) - 1
-        
+        try:
+            resolution_choice = int(resolution_choice.raw_text) - 1
+        except:
+            resolution_choice = resolution_choice.raw_text
+
         await conv.send_message("Send me file name you want on these files in the following format.\nAnime Name - S1 UwU RES LANG.mkv\n UwU will be replaced by ep number.\nRES will be replaced by resolution\nLANG will be replaced by either sub/dub")
         name_format = await conv.get_response()
         name_format = name_format.raw_text.strip()
@@ -59,12 +62,34 @@ async def _(event):
                 res = i[1].split()[0]
                 lang = i[2]
                 file_name = name_format.replace("UwU", str(ep_num)).replace("RES", res).replace("LANG", lang)
-                reply = await event.reply(f"Starting download {file_name}")
+                # reply = await event.reply(f"Starting download {file_name}")
                 
                 file = await helper.DownLoadFile(dl_link, file_name=file_name)
-                res_file = await fast_upload(client = bot, file_location = file, reply = reply)
+                res_file = await fast_upload(client = bot, file_location = file)  #, reply = reply)
                 await bot.send_message(event.chat_id, f"{file_name.replace('.mkv', '').replace('.mp4', '')}", file=res_file, force_document=True, thumb=thumb)
-                await reply.delete()
+                # await reply.delete()
+                os.remove(file)
+    
+    elif resolution_choice == "sub" or resolution_choice == "dub":
+        for k, v in eps_list.items():
+            counter = 0
+            for i in reversed(v):
+                if counter == "3":
+                    break
+                res = i[1]
+                lang = i[2]
+                if resolution_choice != lang.lower():
+                    continue
+                counter += 1
+                dl_link = pahe.dl_apahe2(i[0])
+                dl_link = kwik_token.get_dl_link(dl_link)
+                file_name = name_format.replace("UwU", str(ep_num+1)).replace("RES", res).replace("LANG", lang)
+                # reply = await event.reply(f"Starting download {file_name}")
+                
+                file = await helper.DownLoadFile(dl_link, file_name=file_name)
+                res_file = await fast_upload(client = bot, file_location = file)       # , reply = reply)
+                await bot.send_message(event.chat_id, f"{file_name.replace('.mkv', '').replace('.mp4', '')}", file=res_file, force_document=True, thumb=thumb)
+                # await reply.delete()
                 os.remove(file)
     
     else:
@@ -75,13 +100,13 @@ async def _(event):
             res = v[resolution_choice][1]
             lang = v[resolution_choice][2]
             file_name = name_format.replace("UwU", str(ep_num)).replace("RES", str(res)).replace("LANG", lang)
-            reply = await event.reply(f"Starting download {file_name}")
+            # reply = await event.reply(f"Starting download {file_name}")
             file = await helper.DownLoadFile(dl_link, file_name=file_name)
 
-            res_file = await fast_upload(client = bot, file_location = file, reply = reply)
+            res_file = await fast_upload(client = bot, file_location = file)    # , reply = reply)
             await bot.send_message(event.chat_id, f"{file_name.replace('.mkv', '').replace('.mp4', '')}", file=res_file, force_document=True, thumb=thumb)
             os.remove(file)
-            reply.delete()
+            # reply.delete()
 
 
 @bot.on(events.NewMessage(pattern="/update"))

@@ -83,7 +83,7 @@ async def _(event):
                 counter += 1
                 dl_link = pahe.dl_apahe2(i[0])
                 dl_link = kwik_token.get_dl_link(dl_link)
-                file_name = name_format.replace("UwU", str(ep_num+1)).replace("RES", res).replace("LANG", lang)
+                file_name = name_format.replace("UwU", str(k)).replace("RES", res).replace("LANG", lang)
                 # reply = await event.reply(f"Starting download {file_name}")
                 
                 file = await helper.DownLoadFile(dl_link, file_name=file_name)

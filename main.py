@@ -75,7 +75,7 @@ async def _(event):
         for k, v in eps_list.items():
             counter = 0
             for i in reversed(v):
-                if counter == "3":
+                if counter == 3:
                     break
                 res = i[1]
                 lang = i[2]
@@ -135,7 +135,7 @@ async def _(event):
                 await bot.send_message(event.chat_id, name_format.replace("UwU", str(ep_num+1)).replace("RES", "").replace("LANG", "").replace('.mkv', ''))
                 counter = 0
                 for i in reversed(v):
-                    if counter == "3":
+                    if counter == 3:
                         break
                     res = i[1]
                     lang = i[2]

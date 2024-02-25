@@ -11,6 +11,48 @@ AutoAnimeDB = AutoAnimeDB()
 async def _(event):
     await event.reply("Go Away.")
 
+@bot.on(events.NewMessage(pattern=("/sthumb")))
+async def thumb(event):
+    x = await event.get_reply_message()
+    thumb = await bot.download_media(x.photo)
+    with open(thumb, "rb") as f:
+        pic = f.read()
+    with open("thumb.png", "wb") as f:
+        f.write(pic)
+    await event.reply("Set as default thumbnail")
+
+
+@bot.on(events.NewMessage(pattern=("/cthumb")))
+async def clear_thumb(event):
+    with open("thumb.png", "w") as f:
+        f.write("")
+    await event.reply("cleared thumbnail")
+
+
+@bot.on(events.NewMessage(pattern=("/vthumb")))
+async def view(event):
+    try:
+        await event.reply("current default thumbnail", file="thumb.png")
+    except:
+        await event.reply("No default thumbnail set")
+
+
+
+@bot.on(events.NewMessage(pattern="/dlkiwik"))
+async def _(event):
+    data = event.raw_text.split("\n")
+    dl_link = data[1]
+    file_name = data[2]
+    dl_link = kwik_token.get_dl_link(dl_link)
+    
+    reply = await event.reply(f"Starting download {file_name}")
+                
+    file = await helper.DownLoadFile(dl_link, file_name=file_name)
+    res_file = await fast_upload(client = bot, file_location = file, reply = reply)
+    await bot.send_message(event.chat_id, f"{file_name.replace('.mkv', '').replace('.mp4', '')}", file=res_file, force_document=True, thumb="thumb.png")
+    await reply.delete()
+    os.remove(file)
+    
 
 @bot.on(events.NewMessage(pattern="/search"))
 async def _(event):
